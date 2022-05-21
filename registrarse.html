@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registro</title>
+  <meta charset="utf-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@700&family=Roboto:ital,wght@0,100;0,300;1,100&display=swap');
+    </style>    
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="form.css">
+  <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js"></script>
+</head>
+<body>
+
+
+
+  <div class="topnav index">
+    <a href="home.html" class="logo"><img class='logo'src="naturalista.svg"></img></a>
+  </div>
+  
+
+
+<div class="form toppad">
+  <form action="registrarse.html" id="signup">
+    <h1>Registrarse</h1>
+    <!-- <div class="textbox"> -->
+      <label class="form" for="user">Usuario</label><br>
+      <input type="text" name="user" id="user" placeholder="escribe tu usuario"/><br>
+      <!-- <small></small> -->
+    <!-- </div> -->
+    <!-- <div class="textbox"> -->
+      <label class="form" for="email">Correo</label><br>
+      <input type="text" name="email" id="email" placeholder="escribe tu correo"/><br>
+      <!-- <small></small> -->
+    <!-- </div> -->
+    <!-- <div class="textbox"> -->
+      <label class="form" for="password">Contraseña</label><br>
+      <input type="password" name="password" id="password" placeholder="escribe tu contraseña"/>
+      <!-- <small></small> -->
+    <!-- </div> -->
+    <button type="submit">Registrarse</button>
+  </form>
+</div>
+
+
+
+</body>
+
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
+  import { getDatabase, get,child,set, ref, update } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyC9Xo9zpXopjKxNsYijBWQQrYud5sQMhWw",
+    authDomain: "naturalista-5dd33.firebaseapp.com",
+    projectId: "naturalista-5dd33",
+    storageBucket: "naturalista-5dd33.appspot.com",
+    messagingSenderId: "666572871427",
+    appId: "1:666572871427:web:43d9c5ad4115a55122fb36"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth();
+  
+
+/*   const form = document.getElementById('signup');
+  var email = form.elements['email']
+  var password = form.elements['password'] */
+
+
+  function getUserData(uid){
+  get(child(ref(getDatabase()), `users/${uid}`)).then((snapshot) => {
+      
+      console.log(snapshot.val()["username"])
+      console.log(snapshot.val()["email"])
+      window.location.replace("home.html")
+    }).catch((error) => {
+        console.error(error);
+    });
+}
+
+  signup.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const form = document.getElementById('signup');
+    var username = form.elements['user'].value
+    var email = form.elements['email'].value
+    var password = form.elements['password'].value
+
+
+  
+
+  createUserWithEmailAndPassword(auth, email, password, username)
+  .then((userCredential) => {
+    // Signed in
+    const user = userCredential.user;
+    // ...
+    set(ref(db, 'users/' + user.uid), {
+    username: username,
+    email: email,
+      
+  });
+  
+
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // ..
+    alert(error.message);
+  });
+  
+});
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    const uid = user.uid;
+    console.log(uid)
+    getUserData(uid)
+    
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+  });
+
+</script>
+</html>

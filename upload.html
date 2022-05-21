@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="utf-8">
+  <title>Subir</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@700&family=Roboto:ital,wght@0,100;0,300;1,100&display=swap');
+    </style>    
+  <link rel="stylesheet" href="styles.css">
+<!--   <script src="firebasedata.js"></script> -->
+</head>
+<body >
+
+
+</div>
+
+
+<div class="topnav" id="myTopnav">
+  <a href="home.html" class="logo"><img class='logo'src="naturalista.svg"></img></a>
+  <a href="dashboard.html">Dashboard</a>
+  <a id="salir" onmouseover="" style="cursor: pointer;">Cerrar Sesión</a>
+  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+    <i class="fa fa-bars"></i>
+  </a>
+</div>
+  <div id="title"></div>
+  <div id="gallery"></div>
+  <input type="file" id="fileInput" name="file">
+  <button id="upload">Subir</button>
+  <img id="imageSrc" alt="" >
+
+</body >
+
+<script>
+  function myFunction() {
+  var x = document.getElementById("myTopnav");
+  if (x.className === "topnav") {
+    x.className += " responsive";
+  } else {
+    x.className = "topnav";
+  }
+}
+</script>
+
+<script type="module">
+
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC9Xo9zpXopjKxNsYijBWQQrYud5sQMhWw",
+    authDomain: "naturalista-5dd33.firebaseapp.com",
+    projectId: "naturalista-5dd33",
+    storageBucket: "naturalista-5dd33.appspot.com",
+    messagingSenderId: "666572871427",
+    appId: "1:666572871427:web:43d9c5ad4115a55122fb36"
+  };
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
+  import { getDatabase, set, ref,get,child, update , push} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const dbRef = ref(getDatabase());
+  const auth = getAuth();
+
+  let imgElement = document.getElementById('imageSrc');
+  let inputElement = document.getElementById("fileInput");
+  inputElement.addEventListener('change',(e) => {
+    imgElement.src = URL.createObjectURL(e.target.files[0]);
+    const reader = new FileReader();
+
+    reader.addEventListener("load", function () {
+    // convierte la imagen a una cadena en base64
+      imgElement.src = reader.result;
+  }, false);
+
+  if (e.target.files[0]) {
+    reader.readAsDataURL(e.target.files[0]);
+  }
+   
+  },false);
+  let uploadElement = document.getElementById('upload')
+  uploadElement.addEventListener("click",upload,false)
+
+const queryString = window.location.search;
+const id = parseInt(queryString.split("?id=")[1])
+console.log(id);
+
+if(isNaN(id)){
+  window.location.replace("home.html")
+}
+
+
+get(child(dbRef, `pictures/`+id)).then((snapshot) => {
+if (snapshot.exists()) {
+
+  let fullname = snapshot.val()["names"]+"("+snapshot.val()["scinames"].slice(0,-1)+")"
+  var nameElement = document.createElement("h2");
+  nameElement.innerText = "Sube una imagen de "+fullname
+  document.getElementById("title").appendChild(nameElement)
+  console.log(fullname)
+  
+} else {
+  console.log("No data available");
+}
+  
+}).catch((error) => {
+console.error(error);
+})
+
+
+
+
+
+
+var salir = document.getElementById("salir")
+salir.addEventListener("click",logout)
+
+
+async function logout() {
+
+await signOut(auth).then(()=>{
+  console.log("saliste")
+}).catch((error) => {
+  console.log(errorMessage)
+  });
+
+}
+
+var uid = 0;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    uid = user.uid;
+    console.log(uid)
+    
+    getUserData(uid)
+    // ...
+  } else {
+    window.location.replace("index.html")
+    // User is signed out
+    // ...
+  }
+  });
+
+
+
+  
+
+  get(child(dbRef, `pictures/${id}`)).then((snapshot) => {
+    if (snapshot.exists()) {
+      
+      const name=snapshot.val()["names"]  
+      const sciname=snapshot.val()["scinames"]    
+      console.log(name)
+     
+      
+    } else {
+
+      console.log("No data available");
+    }
+  }).catch((error) => {
+    console.error(error);
+  });
+  
+  var username =""
+  function getUserData(uid){
+  get(child(ref(getDatabase()), `users/${uid}`)).then((snapshot) => {
+      username = snapshot.val()["username"]
+      console.log(snapshot.val()["username"])
+      console.log(snapshot.val()["email"])
+
+    }).catch((error) => {
+        console.error(error);
+    });
+}
+
+
+
+
+async function upload(){
+
+  let lastid = await getlastid()
+
+
+
+  console.log("lastid"+lastid)
+ 
+  set(ref(db, 'gallery/' + id + "/" + (lastid+1)), {
+    title: "uploaded by "+username,
+    image : imgElement.src
+  });
+  
+  set(push(ref(db, 'users/' + uid + "/uploaded/")), {
+    species_index: id,
+    image_index : lastid+1
+  });
+  alert("Imagen cargada exitosamente")
+  window.location.replace("dashboard.html")
+
+}
+
+
+
+
+
+
+
+
+
+async function getlastid()
+{
+  let lastid=0
+await get(child(dbRef, `gallery/`+id)).then((snapshot) => {
+if (snapshot.exists()) {
+
+  lastid = snapshot.val().length-1
+  console.log(snapshot.val().length-1)
+  
+} else {
+  console.log("No data available");
+}
+  
+}).catch((error) => {
+console.error(error);
+})
+return lastid
+}
+
+
+
+
+
+
+
+</script>
+
+</html>

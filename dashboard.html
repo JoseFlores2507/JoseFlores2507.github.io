@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Dashboard</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@700&family=Roboto:ital,wght@0,100;0,300;1,100&display=swap');
+      </style>     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="gallery.css">
+  <!--   <script src="firebasedata.js"></script> -->
+  </head>
+  <body >
+  
+  
+  
+    <div class="topnav" id="myTopnav">
+      <a href="home.html" class="logo"><img class='logo'src="naturalista.svg"></img></a>
+      <a href="dashboard.html">Dashboard</a>
+      <a id="salir" onmouseover="" style="cursor: pointer;">Cerrar Sesión</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+        <i class="fa fa-bars"></i>
+      </a>
+    </div>
+  <div id="titulo"></div>
+  <div id="gallery"></div>
+
+  
+
+</body >
+<script>
+  function myFunction() {
+  var x = document.getElementById("myTopnav");
+  if (x.className === "topnav") {
+    x.className += " responsive";
+  } else {
+    x.className = "topnav";
+  }
+}
+</script>
+<script type="module">
+  const firebaseConfig = {
+    apiKey: "AIzaSyC9Xo9zpXopjKxNsYijBWQQrYud5sQMhWw",
+    authDomain: "naturalista-5dd33.firebaseapp.com",
+    projectId: "naturalista-5dd33",
+    storageBucket: "naturalista-5dd33.appspot.com",
+    messagingSenderId: "666572871427",
+    appId: "1:666572871427:web:43d9c5ad4115a55122fb36"
+  };
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
+  import { getDatabase, set, ref,get,child, update , push} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const dbRef = ref(getDatabase());
+  const auth = getAuth();
+var images=[]
+
+
+
+
+
+
+function galeria(element,id){
+  var img = document.createElement('img');
+  
+  
+
+  
+
+  img.src = element["image"];
+  img.title = element["title"];
+  img.setAttribute("class","image")
+
+
+
+  document.getElementById("gallery").appendChild(img);
+}
+
+
+var boton = document.getElementById("load")
+
+
+
+async function getImage(species_index,image_index){
+  console.log(species_index)
+  console.log(image_index)
+
+  var img = document.createElement('img');
+  var div = document.createElement('div'); 
+  var nameh2 = document.createElement('h2');
+
+
+  await get(child(dbRef, `pictures/${species_index}`)).then((snapshot) => {
+
+      let name = snapshot.val()["names"]
+      let sciname = snapshot.val()["scinames"].slice(0,-1)
+      
+      console.log(`${name}(${sciname})`)
+      nameh2.innerText = `${name}(${sciname})`
+      
+    }).catch((error) => {
+        console.error(error);
+    });
+
+   await get(child(dbRef, `gallery/${species_index}/${image_index}`)).then((snapshot) => {
+      let title = snapshot.val()["title"]
+      let image = snapshot.val()["image"]
+
+      img.src = image;
+      img.title = title;
+
+      img.setAttribute("class","image")
+      div.setAttribute("class","imagecontainer")
+      div.appendChild(img)
+      div.appendChild(nameh2)
+     
+      document.getElementById("gallery").appendChild(div);
+
+    }).catch((error) => {
+        console.error(error);
+    });
+
+    
+
+
+}
+
+
+
+function load()
+{
+  
+    console.log(uid)
+     get(child(dbRef, `users/${uid}/uploaded`)).then((snapshot) => {
+    if (snapshot.exists()) {
+     // images.push(snapshot.val())
+      
+
+    //  galeria(snapshot.val(),i)
+
+      for (const key in snapshot.val()){
+        //console.log(snapshot.val()[key]["species_index"])
+       // console.log(snapshot.val()[key]["image_index"])
+
+        getImage(snapshot.val()[key]["species_index"],snapshot.val()[key]["image_index"])
+      }
+
+      
+    } else {
+      let h4 = document.createElement("h4")
+      h4.innerText="Parece que aún no haz publicado ninguna imagen... Ve a revisar la galería para hacer un aporte."
+      document.getElementById("gallery").appendChild(h4)
+      console.log("No data available");
+     
+    }
+  }).catch((error) => {
+    console.error(error);
+  });
+  
+
+}
+
+
+
+
+
+
+
+  var username =""
+  function getUserData(uid){
+  get(child(ref(getDatabase()), `users/${uid}`)).then((snapshot) => {
+      username = snapshot.val()["username"]
+      console.log(snapshot.val()["username"])
+      console.log(snapshot.val()["email"])
+      
+      let titulo=document.createElement("h2")
+      titulo.innerText="Usuario: "+username
+      let subtitulo=document.createElement("h3")
+      subtitulo.innerText="Tus imagenes subidas"
+
+      document.getElementById("titulo").appendChild(titulo)
+      document.getElementById("titulo").appendChild(subtitulo)
+
+    }).catch((error) => {
+        console.error(error);
+    });
+}
+
+var uid = 0;
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    uid = user.uid;
+    console.log(uid)
+    load()
+    getUserData(uid)
+    
+    // ...
+  } else {
+    window.location.replace("index.html")
+    // User is signed out
+    // ...
+  }
+  });
+
+  async function logout() {
+      await signOut(auth).then(()=>{
+      console.log("saliste")
+    }).catch((error) => {
+      console.log(errorMessage)
+    });
+  }
+  var salir = document.getElementById("salir")
+  salir.addEventListener("click",logout)
+
+
+  
+</script>
+
+</html>

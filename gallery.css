@@ -1,0 +1,38 @@
+.image{
+    max-width:25vw;
+    float:right;
+    margin-right:60px;
+    margin-top:10px;
+    border-radius: 7px;
+}
+.imagecontainer{
+    width: 25vw;
+    margin:15px;
+    font-size: 175%;
+}
+
+
+.imagecontainer h2{
+    color: #71b913
+}
+.imagecontainer:visited{
+    color: #9c7a0a
+}
+#gallery{
+    display:flex;
+  justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+@media only screen and (max-width: 600px) {
+    .image{
+        max-width: 60vw;
+        float:center;
+        /* margin-right:60px;
+        margin-top:10px; */
+        border-radius: 20%;
+    }
+
+ 
+    
+}

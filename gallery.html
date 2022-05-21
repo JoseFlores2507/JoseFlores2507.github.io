@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>galeria</title>
+  <meta charset="utf-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@700&family=Roboto:ital,wght@0,100;0,300;1,100&display=swap');
+    </style>    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="gallery.css">
+<!--   <script src="firebasedata.js"></script> -->
+</head>
+<body >
+
+
+</div>
+
+
+<div class="topnav" id="myTopnav">
+  <a href="home.html" class="logo"><img class='logo'src="naturalista.svg"></img></a>
+  <a href="dashboard.html">Dashboard</a>
+  <a id="salir" onmouseover="" style="cursor: pointer;">Cerrar Sesión</a>
+  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+    <i class="fa fa-bars"></i>
+  </a>
+</div>
+  <a id="toupload"> 
+  <button >Subir imagen</button>
+</a> 
+  <div id="gallery"></div>
+
+  <button id="load">Cargar mas</button>
+
+</body >
+<script>
+  function myFunction() {
+  var x = document.getElementById("myTopnav");
+  if (x.className === "topnav") {
+    x.className += " responsive";
+  } else {
+    x.className = "topnav";
+  }
+}
+</script>
+<script type="module">
+
+
+
+
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC9Xo9zpXopjKxNsYijBWQQrYud5sQMhWw",
+    authDomain: "naturalista-5dd33.firebaseapp.com",
+    projectId: "naturalista-5dd33",
+    storageBucket: "naturalista-5dd33.appspot.com",
+    messagingSenderId: "666572871427",
+    appId: "1:666572871427:web:43d9c5ad4115a55122fb36"
+  };
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
+  import { getDatabase, set, ref,get,child, update , push} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+  
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const dbRef = ref(getDatabase());
+  const auth = getAuth();
+
+  var salir = document.getElementById("salir")
+salir.addEventListener("click",logout)
+
+
+async function logout() {
+
+await signOut(auth).then(()=>{
+  console.log("saliste")
+}).catch((error) => {
+  console.log(errorMessage)
+  });
+
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    const uid = user.uid;
+    console.log(uid)
+    getUserData(uid)
+    // ...
+  } else {
+    window.location.replace("index.html")
+    // User is signed out
+    // ...
+  }
+  });
+
+
+  var images=[]
+
+const queryString = window.location.search;
+const id = parseInt(queryString.split("?id=")[1])
+console.log(id);
+
+if(isNaN(id)){
+  window.location.replace("home.html")
+}
+
+document.getElementById("toupload").href="upload.html?id="+id
+
+
+function galeria(element,id){
+  var img = document.createElement('img');
+  
+  
+
+  
+
+  img.src = element["image"];
+  img.title = element["title"];
+  img.setAttribute("class","image")
+
+
+
+  document.getElementById("gallery").appendChild(img);
+}
+
+var count=0
+var boton = document.getElementById("load")
+
+function load()
+{
+  console.log("hola")
+  for(let i=count;i<=24+count;i++){
+  
+     get(child(dbRef, `gallery/${id}/${i}`)).then((snapshot) => {
+    if (snapshot.exists()) {
+      images.push(snapshot.val())
+      
+      console.log(i)
+      galeria(snapshot.val(),i)
+      console.log(snapshot.val())
+      
+    } else {
+      console.log("No data available");
+      boton.style="display:none"
+    }
+  }).catch((error) => {
+    console.error(error);
+  });
+  
+}
+count+=25;
+}
+
+load()
+  
+
+
+
+boton.addEventListener("click",load,false)
+
+
+</script>
+
+</html>
