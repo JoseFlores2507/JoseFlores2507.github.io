@@ -25,7 +25,7 @@
   </div>
 
 
-  <div class='toppad' id="gallery"></div>
+  <div class='toppad container' id="gallery"></div>
 
   <button id="load">Cargar mas</button>
 
@@ -101,30 +101,46 @@ onAuthStateChanged(auth, (user) => {
 
 
 function galeria(element,id){
+  
   var img = document.createElement('img');
+  var itl = document.createElement('i');
+  var div4 = document.createElement('a');
+  var div3 = document.createElement('div');
+  var div2 = document.createElement('a');
+  var divC = document.createElement('div');
   var div = document.createElement('div'); 
-  var name = document.createElement('h2');
-  var a = document.createElement('a');
+  /* var a = document.createElement('a'); */
 
-  name.innerText = `${element["names"]}(${element["scinames"].slice(0,-1)})`
+  /* name.innerText = `${element["names"]}(${element["scinames"].slice(0,-1)})` */
 
  // btn.href=element["links"]
-  
+  div4.setAttribute("class", "text")
+  div4.innerText = `${element["names"]}`
+  itl.innerText = `(${element["scinames"].slice(0,-1)})`
+  div4.appendChild(itl)
 
   img.src = element["images"];
   img.title = element["titles"];
-  a.setAttribute("class","imagecontainer")
-  img.setAttribute("class","image")
-  a.appendChild(img)
-  a.appendChild(name)
-
+  /* a.setAttribute("class","imagecontainer") */
+/*   img.setAttribute("class","image") */
+  /* a.appendChild(img)
+  a.appendChild(name) */
+  div3.setAttribute("class", "image")
+  div3.appendChild(img)
  // a.name=element["names"]
  // a.id=id
 
-  a.href="./gallery.html?id="+id
-  a.style="text-decoration: none"
+  div2.href="./gallery.html?id="+id
+  div2.style="text-decoration: none"
 
-  div.appendChild(a)
+  div2.setAttribute("class", "gallery-item")
+/*   div2.appendChild(a) */
+  div2.appendChild(div3)
+  div2.appendChild(div4)
+  divC.setAttribute("class", "content")
+  divC.appendChild(div2)  
+  div.setAttribute("class", "gallery-container")
+  div.appendChild(divC)
 
   document.getElementById("gallery").appendChild(div);
 }

@@ -24,7 +24,7 @@
       </a>
     </div>
   <div id="titulo"></div>
-  <div id="gallery"></div>
+  <div class="toppad container" id="gallery"></div>
 
   
 
@@ -89,9 +89,13 @@ async function getImage(species_index,image_index){
   console.log(image_index)
 
   var img = document.createElement('img');
+  var div4 = document.createElement('div');
+  var div3 = document.createElement('div');
+  var div2 = document.createElement('div');
   var div = document.createElement('div'); 
-  var nameh2 = document.createElement('h2');
-
+  var divC = document.createElement('div');
+  var a = document.createElement('a');
+  var itl = document.createElement('i');
 
   await get(child(dbRef, `pictures/${species_index}`)).then((snapshot) => {
 
@@ -99,7 +103,11 @@ async function getImage(species_index,image_index){
       let sciname = snapshot.val()["scinames"].slice(0,-1)
       
       console.log(`${name}(${sciname})`)
-      nameh2.innerText = `${name}(${sciname})`
+      a.innerText = `${name}`
+      a.setAttribute("class", "text")
+      itl.innerText = `(${sciname})`
+      a.appendChild(itl)
+
       
     }).catch((error) => {
         console.error(error);
@@ -113,9 +121,15 @@ async function getImage(species_index,image_index){
       img.title = title;
 
       img.setAttribute("class","image")
-      div.setAttribute("class","imagecontainer")
-      div.appendChild(img)
-      div.appendChild(nameh2)
+      div2.setAttribute("class", "image")
+      div2.appendChild(img)
+      div4.setAttribute("class", "content")
+      div3.setAttribute("class", "gallery-item")
+      div.setAttribute("class","gallery-container")
+      div3.appendChild(div2)
+      div3.appendChild(a)
+      div4.appendChild(div3)
+      div.appendChild(div4)
      
       document.getElementById("gallery").appendChild(div);
 

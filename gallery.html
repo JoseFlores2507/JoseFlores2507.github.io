@@ -25,10 +25,12 @@
     <i class="fa fa-bars"></i>
   </a>
 </div>
+  <div id="title"></div>
   <a id="toupload"> 
   <button >Subir imagen</button>
 </a> 
-  <div id="gallery"></div>
+
+  <div class="toppad container" id="gallery"></div>
 
   <button id="load">Cargar mas</button>
 
@@ -109,23 +111,62 @@ if(isNaN(id)){
   window.location.replace("home.html")
 }
 
+get(child(dbRef, `pictures/`+id)).then((snapshot) => {
+if (snapshot.exists()) {
+  
+  let fullname = snapshot.val()["names"]
+  let sciname = "("+snapshot.val()["scinames"].slice(0,-1)+")"
+  var itl = document.createElement('i');
+  var nameElement = document.createElement("h2");
+  nameElement.innerText = fullname
+  itl.innerText = sciname
+  nameElement.appendChild(itl)
+  document.getElementById("title").appendChild(nameElement)
+  console.log(fullname)
+  
+} else {
+  console.log("No data available");
+}
+  
+}).catch((error) => {
+console.error(error);
+})
+
+
 document.getElementById("toupload").href="upload.html?id="+id
 
 
 function galeria(element,id){
-  var img = document.createElement('img');
-  
-  
 
-  
+  var img = document.createElement('img');
+  var div3 = document.createElement('div');
+  var div2 = document.createElement('div');
+  var divC = document.createElement('div'); 
+  var div = document.createElement('div'); 
+  var name = document.createElement('div');
+  /* var a = document.createElement('a'); */
+
+
 
   img.src = element["image"];
   img.title = element["title"];
-  img.setAttribute("class","image")
+
+
+  div3.setAttribute("class", "image")
+  div3.appendChild(img)
 
 
 
-  document.getElementById("gallery").appendChild(img);
+  div2.setAttribute("class", "gallery-item")
+  div2.appendChild(div3)
+  /*   div2.appendChild(a) */
+  divC.setAttribute("class", "content")
+  divC.appendChild(div2)  
+  div.setAttribute("class", "gallery-container spi")
+  div.appendChild(divC)
+
+  document.getElementById("gallery").appendChild(div);
+
 }
 
 var count=0
