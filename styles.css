@@ -6,7 +6,7 @@ html {
 
 /* The navigation bar */
 .topnav {
-  z-index: 1;
+  z-index: 10;
   overflow: hidden;
   background-color: #8bb614;
   position: fixed; /* Set the topnav to fixed position */
